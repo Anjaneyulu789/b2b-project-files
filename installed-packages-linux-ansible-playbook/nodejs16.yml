@@ -1,0 +1,39 @@
+---
+- name: Install Node.js 16 on Amazon Linux
+  hosts: all
+  become: yes
+  vars:
+    nvm_version: "0.39.1"  # Specify the version of NVM to install
+    node_version: "16"     # Specify the Node.js version to install
+
+  tasks:
+    - name: Install curl if not already installed
+      yum:
+        name: curl
+        state: present
+
+    - name: Download NVM installation script
+      get_url:
+        url: "https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version }}/install.sh"
+        dest: "~/nvm_install.sh"
+        mode: u=rwx,g=x,o=x
+
+    - name: Execute NVM installation script
+      command: "/bin/bash ~/nvm_install.sh"
+      args:
+        creates: "~/.nvm/nvm.sh"
+
+    - name: Source NVM script in .bashrc
+      lineinfile:
+        dest: "~/.bashrc"
+        line: "source ~/.nvm/nvm.sh"
+        create: yes
+
+    - name: Install Node.js version {{ node_version }}
+      shell: |
+        source ~/.bashrc
+        nvm install "{{ node_version }}"
+        nvm use "{{ node_version }}"
+      args:
+        executable: /bin/bash
+
