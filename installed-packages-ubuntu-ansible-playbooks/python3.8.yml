@@ -1,0 +1,42 @@
+---
+- name: Install Python 3.8 on Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - software-properties-common
+        state: present
+
+    - name: Add deadsnakes PPA
+      apt_repository:
+        repo: ppa:deadsnakes/ppa
+        state: present
+
+    - name: Update apt cache after adding deadsnakes PPA
+      apt:
+        update_cache: yes
+
+    - name: Install Python 3.8
+      apt:
+        name: python3.8
+        state: present
+
+    - name: Install pip for Python 3.8
+      apt:
+        name: python3.8-distutils
+        state: present
+
+    - name: Ensure Python 3.8 is installed correctly
+      command: python3.8 --version
+      register: python_version
+
+    - name: Display Python 3.8 version
+      debug:
+        msg: "Python 3.8 version: {{ python_version.stdout }}"
+

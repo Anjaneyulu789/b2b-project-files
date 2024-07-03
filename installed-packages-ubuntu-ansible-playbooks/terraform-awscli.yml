@@ -1,0 +1,67 @@
+---
+- name: Install Terraform and AWS CLI on Ubuntu 24.04
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name:
+          - gnupg
+          - software-properties-common
+          - unzip
+          - curl
+        state: present
+
+    - name: Add HashiCorp GPG key
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+        state: present
+
+    - name: Add HashiCorp repository
+      apt_repository:
+        repo: deb [arch=amd64] https://apt.releases.hashicorp.com focal main
+        state: present
+
+    - name: Update apt cache after adding HashiCorp repository
+      apt:
+        update_cache: yes
+
+    - name: Install Terraform
+      apt:
+        name: terraform
+        state: present
+
+    - name: Verify Terraform installation
+      command: terraform --version
+      register: terraform_version
+
+    - name: Display Terraform version
+      debug:
+        msg: "Terraform version: {{ terraform_version.stdout }}"
+
+    - name: Download AWS CLI version 2 installation package
+      get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+
+    - name: Unzip AWS CLI installation package
+      unarchive:
+        src: /tmp/awscliv2.zip
+        dest: /tmp
+        remote_src: yes
+
+    - name: Install AWS CLI
+      command: sudo /tmp/aws/install
+
+    - name: Verify AWS CLI installation
+      command: aws --version
+      register: aws_version
+
+    - name: Display AWS CLI version
+      debug:
+        msg: "AWS CLI version: {{ aws_version.stdout }}"
+

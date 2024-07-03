@@ -1,0 +1,84 @@
+---
+- name: Install various tools on Ubuntu 24.04
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update and upgrade apt cache
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Install OpenJDK 17
+      apt:
+        name: openjdk-17-jdk
+        state: present
+
+    - name: Install Apache HTTP Server
+      apt:
+        name: apache2
+        state: present
+
+    - name: Ensure Apache HTTP Server is running
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+     
+    - name: Download Maven 3.9.7
+      get_url:
+        url: https://archive.apache.org/dist/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz
+        dest: /tmp/apache-maven-3.9.7-bin.tar.gz
+
+    - name: Extract Maven
+      unarchive:
+        src: /tmp/apache-maven-3.9.7-bin.tar.gz
+        dest: /opt/
+        creates: /opt/apache-maven-3.9.7
+        remote_src: yes
+
+    - name: Create a symlink for Maven
+      file:
+        src: /opt/apache-maven-3.9.7
+        dest: /opt/maven
+        state: link
+
+    - name: Set Maven environment variables
+      copy:
+        dest: /etc/profile.d/maven.sh
+        content: |
+          export M2_HOME=/opt/maven
+          export PATH=${M2_HOME}/bin:${PATH}
+
+    - name: Apply Maven environment variables
+      shell: |
+        source /etc/profile.d/maven.sh
+        # Any other commands you need to run that require these variables
+      args:
+        executable: /bin/bash
+    

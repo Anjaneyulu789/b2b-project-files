@@ -1,0 +1,43 @@
+---
+- name: Install Node.js 16 on Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - curl
+          - gnupg
+        state: present
+
+    - name: Add NodeSource GPG key
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+
+    - name: Install Node.js 16
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install npm
+      ansible.builtin.apt:
+        name: npm
+        state: present
+
+    - name: Verify npm installation
+      ansible.builtin.command: npm --version
+      register: npm_version
+
+    - name: Display npm version
+      ansible.builtin.debug:
+        msg: "npm version: {{ npm_version.stdout }}"
+    
