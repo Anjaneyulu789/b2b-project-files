@@ -1,0 +1,88 @@
+s3 creation:
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "b2bbucket01"  # Replace with your desired bucket name
+}
+  # Uncomment the following line if you want to control bucket ACL
+  # acl    = "public"
+
+  # Uncomment the following block if you want to enable versioning
+  # versioning {
+  #   enabled = true
+  # }
+
+ EC2 Creation:
+
+resource "aws_instance" "example" {
+  ami           = "ami-01b799c439fd5516a"
+  instance_type = "t3.medium"
+
+  root_block_device {
+    volume_size = 30  # Size in GB
+    volume_type = "gp3"  # General Purpose SSD
+  }
+
+  tags = {
+    Name = "B2B-EC2"
+  }
+}
+
+
+MATER-SLAVE CREATION:
+
+resource "aws_instance" "example_instance1" {
+  ami           = "ami-01b799c439fd5516a"  # Replace with your AMI ID
+  instance_type = "t3.medium"
+ 
+root_block_device {
+    volume_size = 60  # Size in GB
+   
+  }
+
+  tags = {
+    Name = "Master"
+  }
+}
+
+
+resource "aws_instance" "example_instance2" {
+  ami           = "ami-01b799c439fd5516a"  # Replace with your AMI ID
+  instance_type = "t2.medium"
+
+root_block_device {
+    volume_size = 30  # Size in GB
+
+  }
+
+  tags = {
+    Name = "Slave1"
+  }
+}
+
+resource "aws_instance" "example_instance3" {
+  ami           = "ami-01b799c439fd5516a"  # Replace with your AMI ID
+  instance_type = "t2.medium"
+
+root_block_device {
+    volume_size = 30  # Size in GB
+
+  }
+
+  tags = {
+    Name = "Slave2"
+  }
+}
+
+resource "aws_instance" "example_instance4" {
+  ami           = "ami-01b799c439fd5516a"  # Replace with your AMI ID
+  instance_type = "t2.medium"
+
+root_block_device {
+    volume_size = 30  # Size in GB
+
+  }
+
+  tags = {
+    Name = "Slave3"
+  }
+}
